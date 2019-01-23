@@ -119,7 +119,7 @@ RUN ln /usr/bin/python3 /usr/bin/python
 RUN ln /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
 
-# instalacion de uwsgi django y otras tools 
+# instalacion de uwsgi django y otras tools
 RUN pip3 install django djangorestframework decorator appnope Markdown coreapi ptvsd
 
 WORKDIR /var/www/html
