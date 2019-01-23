@@ -68,7 +68,8 @@ if [ ! -x "$(command -v docker)" ]; then
 		sudo yum check-update
 	fi	
 	
-	curl -fsSL https://get.docker.com/ | sh
+	# curl -fsSL https://get.docker.com/ | sh
+	curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/docker.sh | sh
 	sudo systemctl start docker
 	sudo systemctl enable docker
 fi
