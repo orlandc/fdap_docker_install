@@ -125,9 +125,8 @@ RUN pip3 install django djangorestframework decorator appnope Markdown coreapi p
 WORKDIR /var/www/html
 RUN git clone https://github.com/orlandc/fdap.git django
 
-RUN mv /var/www/html/django/demo_site.conf /etc/apache2/sites-available/
-
-RUN a2ensite demo_site.conf 
+RUN rm /etc/apache2/sites-available/000-default.conf
+RUN mv /var/www/html/django/000-default.conf /etc/apache2/sites-available/
 
 EXPOSE 80 3500
 CMD ["apache2ctl", "-D", "FOREGROUND"]
