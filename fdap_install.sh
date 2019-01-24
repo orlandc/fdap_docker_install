@@ -7,11 +7,11 @@
 # *--------------------------------------------------------------------------------------------------------------*
 # *   Modificado por   | Fecha de Modificacion |                         Modificacion                            *
 # *--------------------------------------------------------------------------------------------------------------*
-# * orlando.montenegro |      27/10/2017       |           *
+# * orlando.montenegro |      27/10/2017       |                                                                 *
 # *--------------------------------------------------------------------------------------------------------------*
-# *                                            |                      *
+# *                                            |                                                                 *
 # *--------------------------------------------------------------------------------------------------------------*
-# *                                            |         *
+# *                                            |                                                                 *
 # *--------------------------------------------------------------------------------------------------------------*
 # ****************************************************************************************************************
 # Salir de la ehjecucion ante un Error.
@@ -74,7 +74,7 @@ if [ ! -x "$(command -v docker)" ]; then
 	sudo systemctl enable docker
 fi
 
-# se revisa si el archivo de creacion de la imagen del docker existe
+# se revisa si el archivo de creacion de la imagen del docker existe 
 if [ ! -f "$HOME/$REPROT/$DIR/$DOCFILE" ]; then
 	# si el archivo no esta creado, se procede a crearlo
 	sudo touch "$HOME/$REPROT/$DIR/$DOCFILE" 
@@ -89,50 +89,73 @@ fi
 #
 cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
 
-# Descraga la imagen Base de Ubuntu 14
+# Descraga la imagen Base de Ubuntu 16
 FROM ubuntu:16.04
-MAINTAINER orlando.montenegro@correounivalle.edu.co
+MAINTAINER orlando.montenegro@correounivalle.edu.co 
 
 # ARG DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_FRONTEND=noninteractive \
 	DEBCONF_NONINTERACTIVE_SEEN=true
-# RUN locale-gen en_US.UTF-8 && \
-#    locale-gen es_ES.UTF-8 && \
-#    sudo dpkg-reconfigure locales && \
 
-RUN apt-get clean -y
-RUN rm -r /var/lib/apt/lists/*
+RUN touch /etc/apt/apt.conf.d/99fixbadproxy \
+	&& echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+	&& echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+	&& echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+	&& apt-get update -o Acquire::CompressionTypes::Order::=gz \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& apt-get update -y
+
+RUN apt-get update || apt-get update
+RUN apt-get update && apt-get install -y apt-transport-https
 
 RUN apt-get update -q && apt-get install -y locales --no-install-recommends apt-utils && rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.UTF-8 
+ENV LANG en_US.UTF-8
+
+RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 
 RUN apt-get update -q && \
     apt-get install -y build-essential automake autoconf libtool wget \
                        libicu55 libboost-regex1.58.0 \
                        libboost-system1.58.0 libboost-program-options1.58.0 \
                        libboost-thread1.58.0 && \
+                       rm -rf /var/lib/apt/lists/*
+
+RUN apt-get clean -y && apt-get -f install && dpkg --configure -a 
+
+RUN apt-get update -q && \
     apt-get install -y libicu-dev libboost-regex-dev libboost-system-dev \
                        libboost-program-options-dev libboost-thread-dev \
-                       zlib1g-dev &&\
-    cd /tmp && \
-    #wget --progress=dot:giga https://github.com/TALP-UPC/FreeLing/releases/download/4.0/FreeLing-4.0.tar.gz && \
-    wget --quiet https://github.com/TALP-UPC/FreeLing/releases/download/4.0/FreeLing-4.0.tar.gz && \
+                       zlib1g-dev && \
+                       rm -rf /var/lib/apt/lists/*
+
+RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
+
+WORKDIR /tmp
+
+RUN wget https://github.com/TALP-UPC/FreeLing/releases/download/4.0/FreeLing-4.0.tar.gz && \
     tar -xzf FreeLing-4.0.tar.gz && \
-    rm -rf FreeLing-4.0.tar.gz && \
-    cd /tmp/FreeLing-4.0 && \
-    autoreconf --install && \
+    rm -rf FreeLing-4.0.tar.gz
+
+WORKDIR /tmp/FreeLing-4.0
+
+RUN autoreconf --install && \
     ./configure && \
     make -s && \
-    make install -s && \
-    rm -rf /tmp/FreeLing-4.0 && \
-    apt-get --purge -y remove build-essential libicu-dev \
+    make install -s
+
+RUN apt-get --purge -y remove build-essential libicu-dev \
             libboost-regex-dev libboost-system-dev \
             libboost-program-options-dev libboost-thread-dev zlib1g-dev\
             automake autoconf libtool wget && \
     apt-get autoremove -y && \
-    apt-get clean -y && \
-	apt-get install -y \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
+
+RUN apt-get update -q && \
+    apt-get install -y \
 	git \
 	python3 \
 	openssh-server \
@@ -143,24 +166,7 @@ RUN apt-get update -q && \
 	libapache2-mod-wsgi-py3 \
 	sqlite3 && \
 	pip3 install -U pip setuptools && \
-    rm -rf /usr/local/share/freeling/as && \
-    rm -rf /usr/local/share/freeling/ca && \
-    rm -rf /usr/local/share/freeling/cy && \
-    rm -rf /usr/local/share/freeling/de && \
-    rm -rf /usr/local/share/freeling/fr && \
-    rm -rf /usr/local/share/freeling/gl && \
-    rm -rf /usr/local/share/freeling/hr && \
-    rm -rf /usr/local/share/freeling/it && \
-    rm -rf /usr/local/share/freeling/nb && \
-    rm -rf /usr/local/share/freeling/pt && \
-    rm -rf /usr/local/share/freeling/ru && \
-    rm -rf /usr/local/share/freeling/sl && \
     rm -rf /var/lib/apt/lists/*
-
-# Instalacion de Python3 y otras librerias
-# RUN apt-get update && \
-#    apt-get upgrade -y && \
-#    rm -rf /var/lib/apt/lists/*ls
 
 RUN ln /usr/bin/python3 /usr/bin/python
 RUN ln /usr/bin/pip3 /usr/bin/pip
