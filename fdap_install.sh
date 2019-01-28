@@ -40,7 +40,7 @@ cat << "EOF"
 
 *******************************************************
 *          Script que Crea el contenedor de           *
-*                 la aplicacion nlp-u                 *
+*                  la aplicacion fdap                 *
 *******************************************************
 EOF
 
@@ -74,7 +74,7 @@ if [ ! -x "$(command -v docker)" ]; then
 	sudo systemctl enable docker
 fi
 
-# se revisa si el archivo de creacion de la imagen del docker existe 
+# se revisa si el archivo de creacion de la imagen del docker existe
 if [ ! -f "$HOME/$REPROT/$DIR/$DOCFILE" ]; then
 	# si el archivo no esta creado, se procede a crearlo
 	sudo touch "$HOME/$REPROT/$DIR/$DOCFILE" 
@@ -84,7 +84,7 @@ else
 fi
 
 #
-# se escribe el archivo Dockerfile con los comandos de creacion
+# se escribe el archivo Dockerfile con los comandos de creacion 
 # de la imagen del servidor web
 #
 cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
@@ -93,9 +93,14 @@ cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
 FROM ubuntu:16.04
 MAINTAINER orlando.montenegro@correounivalle.edu.co 
 
-# ARG DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_FRONTEND=noninteractive \
 	DEBCONF_NONINTERACTIVE_SEEN=true
+
+#ENV HTTP_PROXY "http://user:password@host:port/"
+#ENV HTTPS_PROXY "http://user:password@host:port/"
+
+#RUN echo "Acquire::http::Proxy \"http://user:password@host:port/\"; " >> /etc/apt/apt.conf
+#RUN echo "Acquire::https::Proxy \"http://user:password@host:port/\"; " >> /etc/apt/apt.conf
 
 RUN touch /etc/apt/apt.conf.d/99fixbadproxy \
 	&& echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf.d/99fixbadproxy \
@@ -106,8 +111,12 @@ RUN touch /etc/apt/apt.conf.d/99fixbadproxy \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& apt-get update -y
 
-RUN apt-get update || apt-get update
 RUN apt-get update && apt-get install -y apt-transport-https
+
+# Step 9/49 : RUN
+RUN apt-get update -q && \
+    apt-get install -y wget  && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q && apt-get install -y locales --no-install-recommends apt-utils && rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
@@ -127,16 +136,33 @@ RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 RUN apt-get update -q && \
     apt-get install -y libicu-dev libboost-regex-dev libboost-system-dev \
                        libboost-program-options-dev libboost-thread-dev \
+					   libboost-all-dev dh-autoreconf \
+					   wget \
+					   git \
                        zlib1g-dev && \
                        rm -rf /var/lib/apt/lists/*
 
 RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 
+RUN apt-get update -q && \
+    apt-get install -y \
+	openssh-server \
+	swig \
+	python3 \
+	python3-dev \
+	python3-setuptools \
+	python3-pip \
+	apt-utils vim curl apache2 apache2-utils \
+	libapache2-mod-wsgi-py3 \
+	sqlite3 && \
+	pip3 install -U pip setuptools && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /tmp
 
-RUN wget https://github.com/TALP-UPC/FreeLing/releases/download/4.0/FreeLing-4.0.tar.gz && \
-    tar -xzf FreeLing-4.0.tar.gz && \
-    rm -rf FreeLing-4.0.tar.gz
+RUN git clone https://github.com/orlandc/Fda-fork.git FreeLing-4.0
+# RUN tar -xzf FreeLing-4.0.tar.gz
+# RUN rm -rf FreeLing-4.0.tar.gz
 
 WORKDIR /tmp/FreeLing-4.0
 
@@ -156,20 +182,24 @@ RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 
 RUN apt-get update -q && \
     apt-get install -y \
-	git \
-	python3 \
-	openssh-server \
-	python3-dev \
-	python3-setuptools \
-	python3-pip \
-	apt-utils vim curl apache2 apache2-utils \
-	libapache2-mod-wsgi-py3 \
-	sqlite3 && \
-	pip3 install -U pip setuptools && \
+	libboost-all-dev \
+	zlib1g-dev \
+	nano \
+	build-essential g++ make && \
+	apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN ln /usr/bin/python3 /usr/bin/python
-RUN ln /usr/bin/pip3 /usr/bin/pip
+WORKDIR /tmp/FreeLing-4.0/APIs/python/
+
+RUN make -f Makefile
+RUN cp _freeling.so freeling.py /usr/lib/python3.5
+
+WORKDIR /tmp
+RUN rm -rf FreeLing-4.0
+
+RUN rm -rf /usr/bin/python && ln /usr/bin/python3 /usr/bin/python && \
+    rm -rf /usr/bin/pip && ln /usr/bin/pip3 /usr/bin/pip
+	
 RUN pip install --upgrade pip
 
 # instalacion de uwsgi django y otras tools
@@ -181,9 +211,16 @@ RUN git clone https://github.com/orlandc/fdap.git django
 RUN rm /etc/apache2/sites-available/000-default.conf
 RUN mv /var/www/html/django/000-default.conf /etc/apache2/sites-available/
 
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-EXPOSE 80 3500
+RUN echo "ServerName " $(hostname --ip-address) >> /etc/apache2/apache2.conf
+
+RUN sed -i "s/#ServerName www.example.com/ServerName $(hostname --ip-address)/g" /etc/apache2/sites-available/000-default.conf
+
+RUN apache2ctl graceful && apache2ctl configtest && service apache2 reload && service apache2 restart
+
+EXPOSE 80 22 3500
 CMD ["apache2ctl", "-D", "FOREGROUND"]
 EOF
 
@@ -198,8 +235,8 @@ docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1 .
 # se expone el puerto se especifica como debe iniciar ante un reinicio del servidor fisico
 # se establecen directivas de ejecucion del servicio
 #
-#docker run --name $DIR --privileged -ti -d -p 80:80 --restart=always -v /sys/fs/cgroup:/sys/fs/cgroup omontenegro/$DIR:v1 /usr/sbin/init
-docker run --name $DIR --privileged -it -d -p 50005:50005 --restart=always omontenegro/$DIR:v1 analyze -f es.cfg --server -p 50005
+docker run --name $DIR --privileged -it -d -p 50080:80 -p 2222:22 -p 3500:3500 --restart=always omontenegro/$DIR:v1
+#docker run --name $DIR --privileged -it -d -p 50005:50005 --restart=always omontenegro/$DIR:v1 analyze -f es.cfg --server -p 50005
 
 #
 # Se desarrolla la limpieza de imagens y contenedores huerfanos o no iniciados en docker
