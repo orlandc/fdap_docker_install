@@ -63,15 +63,26 @@ if [ ! -x "$(command -v docker)" ]; then
     echo 'docker no esta instalado. se procede a la instalacion...' >&2
 	
 	if [ "$SISOP" == "debian" ]; then
-		sudo apt-get update	
+		sudo apt-get update
+
+		dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
+
+		if ["dist_version" == "9"] || ["dist_version" == "stretch"] || ["dist_version" == "8"] || ["dist_version" == "jessie"] || ["dist_version" == "7"] || ["dist_version" == "wheezy"]; then
+		
+			curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/docker.sh | sh
+			sudo systemctl start docker
+			sudo systemctl enable docker
+		else
+			curl -fsSL https://get.docker.com/ | sh
+		fi
 	else
 		sudo yum check-update
+
+		curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/docker.sh | sh
+		sudo systemctl start docker
+		sudo systemctl enable docker
 	fi	
 	
-	# curl -fsSL https://get.docker.com/ | sh
-	curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/docker.sh | sh
-	sudo systemctl start docker
-	sudo systemctl enable docker
 fi
 
 # se revisa si el archivo de creacion de la imagen del docker existe
