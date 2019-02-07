@@ -231,6 +231,8 @@ RUN sed -i "s/#ServerName www.example.com/ServerName $(hostname --ip-address)/g"
 
 RUN apache2ctl graceful && apache2ctl configtest && service apache2 reload && service apache2 restart
 
+RUN systemctl enable apache2
+
 EXPOSE 80 22 3500
 CMD ["apache2ctl", "-D", "FOREGROUND"]
 EOF
