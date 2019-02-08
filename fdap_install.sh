@@ -22,6 +22,7 @@ HOME=sudo pwd
 DIR=nlp-univalle
 DOCFILE=Dokerfile
 REPROT=docimages
+SHFILE=boot.sh
 
 # se captura el sistema operativo huesped
 SISOP=sudo cat /etc/*-release | grep "^\ID_LIKE=" | sed 's/ID_LIKE=//g' | sed 's/["]//g' | awk '{print $1}'
@@ -57,6 +58,20 @@ if [ ! -d "$HOME/$REPROT/$DIR" ]; then
 	sudo mkdir -p $HOME/$REPROT/$DIR
 	echo "Se crea el repositorio $DIR"
 fi
+
+
+cat >> $HOME/$REPROT/$DIR/$SHFILE << "EOF"
+#!/bin/bash
+if [ ! -d "$APACHE_RUN_DIR" ]; then
+	mkdir "$APACHE_RUN_DIR"
+	chown $APACHE_RUN_USER:$APACHE_RUN_GROUP "$APACHE_RUN_DIR"
+fi
+if [ -f "$APACHE_PID_FILE" ]; then
+	rm "$APACHE_PID_FILE"
+fi
+/usr/sbin/apache2ctl -D FOREGROUND
+EOF
+
 
 # se verifica si docker esta instalado en la maquina
 if [ ! -x "$(command -v docker)" ]; then
@@ -106,6 +121,13 @@ MAINTAINER orlando.montenegro@correounivalle.edu.co
 
 ENV DEBIAN_FRONTEND=noninteractive \
 	DEBCONF_NONINTERACTIVE_SEEN=true
+
+ENV APACHE_RUN_USER=www-data \
+	APACHE_RUN_GROUP=www-data \
+    APACHE_LOG_DIR=/var/log/apache2 \
+    APACHE_LOCK_DIR=/var/lock/apache2 \
+    APACHE_RUN_DIR=/var/run/apache2 \
+    APACHE_PID_FILE=/var/run/apache2.pid 
 
 #ENV HTTP_PROXY "http://user:password@host:port/"
 #ENV HTTPS_PROXY "http://user:password@host:port/"
@@ -213,7 +235,7 @@ RUN rm -rf /usr/bin/python && ln /usr/bin/python3 /usr/bin/python && \
 	
 RUN pip install --upgrade pip
 
-# instalacion de uwsgi django y otras tools
+# instalacion de django y otras tools
 RUN pip3 install django djangorestframework decorator appnope Markdown coreapi ptvsd
 
 WORKDIR /var/www/html
@@ -233,8 +255,16 @@ RUN apache2ctl graceful && apache2ctl configtest && service apache2 reload && se
 
 RUN systemctl enable apache2
 
+RUN mkdir /scripts
+
+COPY ./boot.sh /scripts/
+
+RUN chmod +x /scripts/*
+
+
 EXPOSE 80 22 3500
-CMD ["apache2ctl", "-D", "FOREGROUND"]
+# CMD ["apache2ctl", "-D", "FOREGROUND"]
+CMD ["/scripts/boot.sh"]
 EOF
 
 #cd $HOME/$REPROT/$DIR
