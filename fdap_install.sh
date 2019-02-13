@@ -7,9 +7,9 @@
 # *--------------------------------------------------------------------------------------------------------------*
 # *   Modificado por   | Fecha de Modificacion |                         Modificacion                            *
 # *--------------------------------------------------------------------------------------------------------------*
-# * orlando.montenegro |      27/10/2017       |                                                                 *
+# * orlando.montenegro |      27/10/2017       | Creación del primer Instalador Docker Freeling 4.0              *
 # *--------------------------------------------------------------------------------------------------------------*
-# *                                            |                                                                 *
+# * orlando.montenegro |      13/02/2019       | Creacion de instalador Freeling 4.1 Django Rest API             *
 # *--------------------------------------------------------------------------------------------------------------*
 # *                                            |                                                                 *
 # *--------------------------------------------------------------------------------------------------------------*
@@ -99,7 +99,6 @@ fi
 # de la imagen del servidor web
 #
 cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
-
 # Descarga la imagen Base de Ubuntu 18
 FROM ubuntu:18.10
 MAINTAINER orlando.montenegro@correounivalle.edu.co 
