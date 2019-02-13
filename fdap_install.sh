@@ -29,8 +29,8 @@ SISOP=SISOP="$(cat /etc/*-release | grep '^\ID_LIKE=' | sed 's/ID_LIKE=//g' | se
 # Se establece la variable que contiene el nombre del archivo que se esta ejecutando
 currentscript="$0"
 
-# Esta funcion se ejecuta en la sentencia de salida de ejecucion del Script
-function finish() {
+# Esta funcion se ejecuta en la sentencia de salida de ejecucion del Script 
+finish() {
     echo "Eliminacion Segura de ${currentscript}"
     sudo shred -u ${currentscript}
 }
