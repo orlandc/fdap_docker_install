@@ -100,7 +100,7 @@ fi
 #
 cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
 
-# Descraga la imagen Base de Ubuntu 18
+# Descarga la imagen Base de Ubuntu 18
 FROM ubuntu:18.10
 MAINTAINER orlando.montenegro@correounivalle.edu.co 
 

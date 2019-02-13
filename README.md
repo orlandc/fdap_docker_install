@@ -1,6 +1,6 @@
-# Instalador Docker Freeling Django API Rest
+# Instalador Docker Freeling 4.1 Django API Rest
 
-Este es el primer instalador para principiantes, de Docker Freeling Django y el API Rest para Freeling.
+Este es el primer instalador para principiantes, de Docker Freeling 4.1 Django y el API Rest para Freeling.
 
 ## Requerimientos
 
@@ -29,7 +29,7 @@ Existen dos métodos para desarrollar el procedimiento de instalación, el prime
 
 el segundo método consiste en descargar y ejecutar el script:
 
-    sudo wget -O https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/fdap_install.sh
+    sudo wget https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/fdap_install.sh
     sudo chmod +x fdap_install.sh
     sudo ./fdap_install.sh
 
@@ -73,5 +73,6 @@ Argumentos: `texto`: *texto de entrada*
 Salida: *lista de hashes* `palabra`: *palabra*, `lemas`: *lista de hashes* `categoria`: *etiqueta gramatical*, `lema`: *lema*
 
 
-    curl http://127.0.0.1:50080/postagging/ -H "Content-Type:application/json" -d '{"texto":"El presidente del Atleti hace pelis. Me gusta el jamón. Mucho."}' -X POST -s
-    [{"texto ": }]
+    curl http://127.0.0.1:50080/postagging/ -H "Content-Type:application/json" -d '{"1":"El", "2":"presidente", "3":"de", "4":"el", "5":"Barcelona"}' -X POST -s
+    [{"texto ": [{"palabra": "El", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "presidente", "lemas": [{"categoria": "NCMS000", "lema":
+    "presidente"}]}, {"palabra": "de", "lemas": [{"categoria": "SP", "lema": "de"}, {"categoria": "NCFS000", "lema": "de"}]}, {"palabra": "el", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "Barcelona", "lemas": [{"categoria": "NP00000", "lema": "barcelona"}]}]}]
