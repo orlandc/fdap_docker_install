@@ -81,8 +81,7 @@ if [ ! -x "$(command -v docker)" ]; then
 		curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/docker.sh | sh
 		sudo systemctl start docker
 		sudo systemctl enable docker
-	fi	
-	
+	fi
 fi
 
 # se revisa si el archivo de creacion de la imagen del docker existe
