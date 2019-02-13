@@ -45,7 +45,7 @@ cat << "EOF"
 EOF
 
 # Se revisa si el usuario que ejecuta es root.
-if [ $EUID -ne 0 ]; then
+if [ "$(id -u)" != "0" ]; then
    echo "Este script Se debe ejecutar como root."
    exit 1
 fi
