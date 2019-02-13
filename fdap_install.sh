@@ -30,7 +30,7 @@ SISOP=SISOP="$(cat /etc/*-release | grep '^\ID_LIKE=' | sed 's/ID_LIKE=//g' | se
 currentscript="$0"
 
 # Esta funcion se ejecuta en la sentencia de salida de ejecucion del Script 
-finish {
+function finish {
     echo "Eliminacion Segura de ${currentscript}"
     sudo shred -u ${currentscript}
 }
@@ -45,8 +45,7 @@ cat << "EOF"
 EOF
 
 # Se revisa si el usuario que ejecuta es root.
-if [[ $EUID -ne 0 ]]
-then
+if [[ $EUID -ne 0 ]]; then
    echo "Este script Se debe ejecutar como root."
    exit 1
 fi
