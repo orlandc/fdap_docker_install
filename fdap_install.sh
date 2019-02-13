@@ -24,7 +24,7 @@ DOCFILE=Dokerfile
 REPROT=docimages
 
 # se captura el sistema operativo huesped
-SISOP="$(cat /etc/*-release | grep "^\ID_LIKE=" | sed 's/ID_LIKE=//g' | sed 's/["]//g' | awk '{print $1}')"
+SISOP=SISOP="$(cat /etc/*-release | grep '^\ID_LIKE=' | sed 's/ID_LIKE=//g' | sed 's/[\"]//g' | awk '{print $1}')"
 
 # Se establece la variable que contiene el nombre del archivo que se esta ejecutando
 currentscript="$0"
@@ -273,7 +273,8 @@ EOF
 #
 # Se ejecuta la construccion de la imagen docker a partir del archivo de construccion
 #
-docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1.1 . 
+cd $HOME/$REPROT/$DIR/ && docker build .
+echo docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1.1 . 
 
 #
 # Se desarrolla la construccion del contenedor a partir de la imagen creada, adicionalemnte
