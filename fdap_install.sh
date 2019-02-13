@@ -274,7 +274,7 @@ EOF
 # Se ejecuta la construccion de la imagen docker a partir del archivo de construccion
 #
 cd $HOME/$REPROT/$DIR/ && docker build .
-echo docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1.1 . 
+docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1.1 . 
 
 #
 # Se desarrolla la construccion del contenedor a partir de la imagen creada, adicionalemnte
