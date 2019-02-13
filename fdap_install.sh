@@ -22,10 +22,9 @@ HOME=sudo pwd
 DIR=nlp-univalle
 DOCFILE=Dokerfile
 REPROT=docimages
-SHFILE=boot.sh
 
 # se captura el sistema operativo huesped
-SISOP=sudo cat /etc/*-release | grep "^\ID_LIKE=" | sed 's/ID_LIKE=//g' | sed 's/["]//g' | awk '{print $1}'
+SISOP="$(cat /etc/*-release | grep "^\ID_LIKE=" | sed 's/ID_LIKE=//g' | sed 's/["]//g' | awk '{print $1}')"
 
 # Se establece la variable que contiene el nombre del archivo que se esta ejecutando
 currentscript="$0"
@@ -58,20 +57,6 @@ if [ ! -d "$HOME/$REPROT/$DIR" ]; then
 	sudo mkdir -p $HOME/$REPROT/$DIR
 	echo "Se crea el repositorio $DIR"
 fi
-
-
-cat >> $HOME/$REPROT/$DIR/$SHFILE << "EOF"
-#!/bin/bash
-if [ ! -d "$APACHE_RUN_DIR" ]; then
-	mkdir "$APACHE_RUN_DIR"
-	chown $APACHE_RUN_USER:$APACHE_RUN_GROUP "$APACHE_RUN_DIR"
-fi
-if [ -f "$APACHE_PID_FILE" ]; then
-	rm "$APACHE_PID_FILE"
-fi
-/usr/sbin/apache2ctl -D FOREGROUND
-EOF
-
 
 # se verifica si docker esta instalado en la maquina
 if [ ! -x "$(command -v docker)" ]; then
@@ -115,8 +100,8 @@ fi
 #
 cat >> $HOME/$REPROT/$DIR/$DOCFILE << "EOF"
 
-# Descraga la imagen Base de Ubuntu 16
-FROM ubuntu:16.04
+# Descraga la imagen Base de Ubuntu 18
+FROM ubuntu:18.10
 MAINTAINER orlando.montenegro@correounivalle.edu.co 
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -127,7 +112,8 @@ ENV APACHE_RUN_USER=www-data \
     APACHE_LOG_DIR=/var/log/apache2 \
     APACHE_LOCK_DIR=/var/lock/apache2 \
     APACHE_RUN_DIR=/var/run/apache2 \
-    APACHE_PID_FILE=/var/run/apache2.pid 
+    APACHE_PID_FILE=/var/run/apache2.pid \
+	FREELINGDIR=/usr/local/
 
 #ENV HTTP_PROXY "http://user:password@host:port/"
 #ENV HTTPS_PROXY "http://user:password@host:port/"
@@ -146,9 +132,8 @@ RUN touch /etc/apt/apt.conf.d/99fixbadproxy \
 
 RUN apt-get update && apt-get install -y apt-transport-https
 
-# Step 9/49 : RUN
 RUN apt-get update -q && \
-    apt-get install -y wget  && \
+    apt-get install -y wget cmake && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q && apt-get install -y locales --no-install-recommends apt-utils && rm -rf /var/lib/apt/lists/* \
@@ -159,9 +144,9 @@ RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 
 RUN apt-get update -q && \
     apt-get install -y build-essential automake autoconf libtool wget \
-                       libicu55 libboost-regex1.58.0 \
-                       libboost-system1.58.0 libboost-program-options1.58.0 \
-                       libboost-thread1.58.0 && \
+                       libicu60 libboost-regex1.67.0 \
+                       libboost-system1.67.0 libboost-program-options1.67.0 \
+                       libboost-thread1.67.0 && \
                        rm -rf /var/lib/apt/lists/*
 
 RUN apt-get clean -y && apt-get -f install && dpkg --configure -a 
@@ -181,7 +166,7 @@ RUN apt-get update -q && \
     apt-get install -y \
 	openssh-server \
 	swig \
-	python3 \
+	nano \
 	python3-dev \
 	python3-setuptools \
 	python3-pip \
@@ -193,42 +178,67 @@ RUN apt-get update -q && \
 
 WORKDIR /tmp
 
-RUN git clone https://github.com/orlandc/Fda-fork.git FreeLing-4.0
-# RUN tar -xzf FreeLing-4.0.tar.gz
-# RUN rm -rf FreeLing-4.0.tar.gz
+#RUN git clone https://github.com/orlandc/Fda-fork.git FreeLing-4.0
+#RUN git clone https://github.com/TALP-UPC/FreeLing.git FreeLing-4.1
+RUN wget --progress=dot:giga https://github.com/TALP-UPC/FreeLing/releases/download/4.1/FreeLing-4.1.tar.gz && \
+	tar -xzf FreeLing-4.1.tar.gz && \
+	rm -rf FreeLing-4.1.tar.gz
 
-WORKDIR /tmp/FreeLing-4.0
+WORKDIR /tmp/FreeLing-4.1
 
-RUN autoreconf --install && \
-    ./configure && \
-    make -s && \
-    make install -s
+RUN mkdir build
+WORKDIR /tmp/FreeLing-4.1/build
+RUN cmake -DPYTHON3_API=ON .. 
+RUN make install
 
 RUN apt-get --purge -y remove build-essential libicu-dev \
             libboost-regex-dev libboost-system-dev \
             libboost-program-options-dev libboost-thread-dev zlib1g-dev\
             automake autoconf libtool wget && \
     apt-get autoremove -y && \
+	rm -rf /usr/local/share/freeling/as && \
+	rm -rf /usr/local/share/freeling/ca && \
+	rm -rf /usr/local/share/freeling/cs && \
+	rm -rf /usr/local/share/freeling/cy && \
+	rm -rf /usr/local/share/freeling/de && \
+	rm -rf /usr/local/share/freeling/en && \
+	rm -rf /usr/local/share/freeling/fr && \
+	rm -rf /usr/local/share/freeling/gl && \
+	rm -rf /usr/local/share/freeling/hr && \
+	rm -rf /usr/local/share/freeling/it && \
+	rm -rf /usr/local/share/freeling/nb && \
+	rm -rf /usr/local/share/freeling/pt && \
+	rm -rf /usr/local/share/freeling/ru && \
+	rm -rf /usr/local/share/freeling/sl && \
+	rm -rf /usr/local/share/freeling/APIs && \
+	rm -rf /usr/local/share/freeling/config/as.cfg && \
+	rm -rf /usr/local/share/freeling/config/ca-valencia.cfg && \
+	rm -rf /usr/local/share/freeling/config/cs.cfg && \
+	rm -rf /usr/local/share/freeling/config/de.cfg && \
+	rm -rf /usr/local/share/freeling/config/es-ar.cfg && \
+	rm -rf /usr/local/share/freeling/config/es-old.cfg && \
+	rm -rf /usr/local/share/freeling/config/fr.cfg && \
+	rm -rf /usr/local/share/freeling/config/nb.cfg && \
+	rm -rf /usr/local/share/freeling/config/ru.cfg && \
+	rm -rf /usr/local/share/freeling/config/ca-balear.cfg && \
+	rm -rf /usr/local/share/freeling/config/ca.cfg && \
+	rm -rf /usr/local/share/freeling/config/cy.cfg && \
+	rm -rf /usr/local/share/freeling/config/en.cfg && \
+	rm -rf /usr/local/share/freeling/config/es-cl.cfg && \
+	rm -rf /usr/local/share/freeling/config/gl.cfg && \
+	rm -rf /usr/local/share/freeling/config/it.cfg && \
+	rm -rf /usr/local/share/freeling/config/pt.cfg && \
+	rm -rf /usr/local/share/freeling/config/sl.cfg && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get clean -y && apt-get -f install && dpkg --configure -a
 
-RUN apt-get update -q && \
-    apt-get install -y \
-	libboost-all-dev \
-	zlib1g-dev \
-	nano \
-	build-essential g++ make && \
-	apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp/FreeLing-4.1/build/APIs/python3
 
-WORKDIR /tmp/FreeLing-4.0/APIs/python/
-
-RUN make -f Makefile
-RUN cp _freeling.so freeling.py /usr/lib/python3.5
+RUN cp _pyfreeling.so pyfreeling.py /usr/lib/python3.6
 
 WORKDIR /tmp
-RUN rm -rf FreeLing-4.0
+RUN rm -rf FreeLing-4.1
 
 RUN rm -rf /usr/bin/python && ln /usr/bin/python3 /usr/bin/python && \
     rm -rf /usr/bin/pip && ln /usr/bin/pip3 /usr/bin/pip
@@ -241,29 +251,23 @@ RUN pip3 install django djangorestframework decorator appnope Markdown coreapi p
 WORKDIR /var/www/html
 RUN git clone https://github.com/orlandc/fdap.git django
 
-RUN rm /etc/apache2/sites-available/000-default.conf
-RUN mv /var/www/html/django/000-default.conf /etc/apache2/sites-available/
+RUN rm -rf /etc/apache2/sites-available/000-default.conf && \
+	mv /var/www/html/django/000-default.conf /etc/apache2/sites-available/ && \
+	mkdir /scripts && \
+	mv /var/www/html/django/boot.sh /scripts/ && \
+	chmod +x /scripts/*
 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-RUN echo "ServerName " $(hostname --ip-address) >> /etc/apache2/apache2.conf
-
-RUN sed -i "s/#ServerName www.example.com/ServerName $(hostname --ip-address)/g" /etc/apache2/sites-available/000-default.conf
-
-RUN apache2ctl graceful && apache2ctl configtest && service apache2 reload && service apache2 restart
-
-RUN systemctl enable apache2
-
-RUN mkdir /scripts
-
-COPY ./boot.sh /scripts/
-
-RUN chmod +x /scripts/*
-
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+	echo "ServerName " $(hostname --ip-address) >> /etc/apache2/apache2.conf && \
+	sed -i "s/#ServerName www.example.com/ServerName $(hostname --ip-address)/g" /etc/apache2/sites-available/000-default.conf && \
+	apache2ctl graceful && apache2ctl configtest && \
+	service apache2 reload && \
+	service apache2 restart && \
+	systemctl enable apache2
 
 EXPOSE 80 22 3500
-# CMD ["apache2ctl", "-D", "FOREGROUND"]
+#  CMD ["apache2ctl", "-D", "FOREGROUND"]
 CMD ["/scripts/boot.sh"]
 EOF
 
@@ -271,14 +275,14 @@ EOF
 #
 # Se ejecuta la construccion de la imagen docker a partir del archivo de construccion
 #
-docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1 . 
+docker build -f $HOME/$REPROT/$DIR/$DOCFILE -t omontenegro/$DIR:v1.1 . 
 
 #
 # Se desarrolla la construccion del contenedor a partir de la imagen creada, adicionalemnte
 # se expone el puerto se especifica como debe iniciar ante un reinicio del servidor fisico
 # se establecen directivas de ejecucion del servicio
 #
-docker run --name $DIR --privileged -it -d -p 50080:80 -p 2222:22 -p 3500:3500 --restart=always omontenegro/$DIR:v1
+docker run --name $DIR --privileged -it -d -p 5080:80 -p 2222:22 -p 3500:3500 --restart=always omontenegro/$DIR:v1.1
 #docker run --name $DIR --privileged -it -d -p 50005:50005 --restart=always omontenegro/$DIR:v1 analyze -f es.cfg --server -p 50005
 
 #
