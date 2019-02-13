@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # ****************************************************************************************************************
 # *                         Script que Crea el contenedor de la aplicacion nlp-u                                 *
 # *                                                                                                              *
@@ -30,7 +30,7 @@ SISOP=SISOP="$(cat /etc/*-release | grep '^\ID_LIKE=' | sed 's/ID_LIKE=//g' | se
 currentscript="$0"
 
 # Esta funcion se ejecuta en la sentencia de salida de ejecucion del Script 
-function finish {
+finish() {
     echo "Eliminacion Segura de ${currentscript}"
     sudo shred -u ${currentscript}
 }
