@@ -241,7 +241,7 @@ RUN rm -rf FreeLing-4.1
 RUN rm -rf /usr/bin/python && ln /usr/bin/python3 /usr/bin/python && \
     rm -rf /usr/bin/pip && ln /usr/bin/pip3 /usr/bin/pip
 	
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip 
 
 # instalacion de django y otras tools
 RUN pip3 install django djangorestframework decorator appnope Markdown coreapi ptvsd
