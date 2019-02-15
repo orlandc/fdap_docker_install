@@ -92,7 +92,8 @@ Argumentos: `texto`: *texto de entrada*
 
 Salida: *lista de hashes* `palabra`: *palabra*, `lemas`: *lista de hashes* `categoria`: *etiqueta gramatical*, `lema`: *lema*
 
-    curl http://127.0.0.1:5080/postagging/ -H "Content-Type:application/json" -d '{"1":"El", "2":"presidente", "3":"de", "4":"el", "5":"Barcelona"}' -X POST -s
+    curl http://127.0.0.1:5080/ostagging/ -H "Content-Type:application/json" \
+-d '{"texto": "{\"1\":\"El\", \"2\":\"presidente\", \"3\":\"de\", \"4\":\"el\", \"5\":\"Barcelona\"}" }' -X POST -s
     [{"texto ": [{"palabra": "El", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "presidente", "lemas": [{"categoria": "NCMS000", "lema":
     "presidente"}]}, {"palabra": "de", "lemas": [{"categoria": "SP", "lema": "de"}, {"categoria": "NCFS000", "lema": "de"}]}, {"palabra": "el", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "Barcelona", "lemas": [{"categoria": "NP00000", "lema": "barcelona"}]}]}]
 
