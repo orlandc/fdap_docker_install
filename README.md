@@ -4,7 +4,7 @@ Este es el primer instalador para principiantes, de Docker Freeling 4.1 Django y
 
 ## Requerimientos
 
-1. Tener Docker CE instalado (Para sistemas Linux revisar el siguiente )[LINK](https://gist.github.com/subfuzion/90e8498a26c206ae393b66804c032b79)
+1. Tener Docker CE instalado (Para sistemas Linux revisar el siguiente [LINK](https://gist.github.com/subfuzion/90e8498a26c206ae393b66804c032b79))
 
 3. Acceso a Internet en la maquina donde ese ejecutara el Script
 
@@ -19,7 +19,7 @@ Se debe descargar la imagen del contenedor usando el docker-ce usando el siguien
 
 Una vez terminado el proceso Procedemos a la Creación y ejecución del contenedor:
 
-     sudo docker run --name fdap --privileged -it -d -p 5080:80 -p 2222:22 -p 3500:3500 --restart=always orlandc/freeling-django-rest-api
+    sudo docker run --name fdap --privileged -it -d -p 5080:80 -p 2222:22 -p 3500:3500 --restart=always orlandc/freeling-django-rest-api
 
 ## Ejemplos
 
