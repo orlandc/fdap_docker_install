@@ -30,15 +30,16 @@ Argumentos de entrada: `texto`: *texto de entrada*
 Salida: *lista de elementos* `lang`:`es|ca|en|fr|gl|it|pt|ru|de|none`
 
     curl http://127.0.0.1:5080/langdetect/ -H "Content-Type:application/json" -d '{"texto":"Mira que cosa más linda."}' -X POST -s
+
     [{"texto": "es"}]
 
 Ejemplo de Uso en Python
 
     import requests
     url = 'http://127.0.0.1:5080/langdetect/'
-    data = '{"texto":"Mira que cosa más linda."}'
-    response = requests.post(url, data=data,headers={"Content-Type": "application/json"})
-    print(response)
+    data = {"texto":"Mira que cosa más linda."}
+    response = requests.post(url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print(response.json())
 
 ## Segmentador de oraciones y tokenizador `tokenizer`
 
@@ -47,15 +48,16 @@ Argumentos: `texto`: *texto de entrada*
 Salida: *lista de elementos* `oracion`: *lista de tokens*
 
     curl http://127.0.0.1:5080/tokenizer/ -H "Content-Type:application/json" -d '{"texto":"La tarjeta SIM es una tarjeta pequeña que se coloca en el teléfono. Contiene información sobre la red móvil utilizada y servicios adicionales como SMS y MMS."}' -X POST -s
+
     [{"texto": "['La', 'La', 'tarjeta', 'SIM', 'es', 'una', 'tarjeta', 'pequeña', 'que', 'se', 'coloca', 'en', 'el', 'teléfono', '.', 'Contiene', 'información', 'sobre', 'la', 'red', 'móvil', 'utilizada', 'y', 'servicios', 'adicionales', 'como', 'SMS', 'y', 'MMS', '.']" }]
 
 Ejemplo de Uso en Python
 
     import requests
     url = 'http://127.0.0.1:5080/tokenizer/'
-    data = '{"texto":"La tarjeta SIM es una tarjeta pequeña que se coloca en el teléfono. Contiene información sobre la red móvil utilizada y servicios adicionales como SMS y MMS."}'
-    response = requests.post(url, data=data,headers={"Content-Type": "application/json"})
-    print(response)
+    data = {"texto":"La tarjeta SIM es una tarjeta pequeña que se coloca en el teléfono. Contiene información sobre la red móvil utilizada y servicios adicionales como SMS y MMS."}
+    response = requests.post(url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print(response.json())
 
 ## Segmentador de oraciones `sentenceSplitting`
 
@@ -64,15 +66,16 @@ Argumentos: `texto`: *texto de entrada*
 Salida: *lista de elementos* `oracion`: *texto de la oración*
 
     curl http://127.0.0.1:5080/sentenceSplitting/-H "Content-Type:application/json" -d '{"texto":"La ONU dice que I.B.M. no tiene sede en Francia sino en EEUU. Te espero el lunes a las tres menos cuarto."}' -X POST -s
+
     [{"texto": "[{'La ONU dice que I.B.M. no tiene sede en Francia sino en EEUU .} {'Te espero el lunes a las tres menos cuarto .}]" }]
 
 Ejemplo de Uso en Python
 
     import requests
     url = 'http://127.0.0.1:5080/sentenceSplitting/'
-    data = '{"texto":"La ONU dice que I.B.M. no tiene sede en Francia sino en EEUU. Te espero el lunes a las tres menos cuarto."}'
-    response = requests.post(url, data=data,headers={"Content-Type": "application/json"})
-    print(response)
+    data = {"texto":"La ONU dice que I.B.M. no tiene sede en Francia sino en EEUU. Te espero el lunes a las tres menos cuarto."}
+    response = requests.post(url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print(response.json())
 
 ## Etiquetador `postagging`
 
@@ -82,6 +85,7 @@ Salida: *lista de hashes* `palabra`: *palabra*, `lemas`: *lista de hashes* `cate
 
     curl http://127.0.0.1:5080/ostagging/ -H "Content-Type:application/json" \
 -d '{"texto": "{\"1\":\"El\", \"2\":\"presidente\", \"3\":\"de\", \"4\":\"el\", \"5\":\"Barcelona\"}" }' -X POST -s
+
     [{"texto ": [{"palabra": "El", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "presidente", "lemas": [{"categoria": "NCMS000", "lema":
     "presidente"}]}, {"palabra": "de", "lemas": [{"categoria": "SP", "lema": "de"}, {"categoria": "NCFS000", "lema": "de"}]}, {"palabra": "el", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "Barcelona", "lemas": [{"categoria": "NP00000", "lema": "barcelona"}]}]}]
 
@@ -89,6 +93,6 @@ Ejemplo de Uso en Python
 
     import requests
     url = 'http://127.0.0.1:5080/postagging/'
-    data = '{"1":"El", "2":"presidente", "3":"de", "4":"el", "5":"Barcelona"}'
-    response = requests.post(url, data=data,headers={"Content-Type": "application/json"})
-    print(response)
+    data = {"1":"El", "2":"presidente", "3":"de", "4":"el", "5":"Barcelona"}
+    response = requests.post(url, data=json.dumps(data), headers={"Content-Type": "application/json"})
+    print(response.json())
