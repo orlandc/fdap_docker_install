@@ -6,7 +6,7 @@ Este es el primer instalador para principiantes, de Docker Freeling 4.1 Django y
 
 1. Tener Docker CE instalado (Para sistemas Linux revisar el siguiente [LINK](https://gist.github.com/subfuzion/90e8498a26c206ae393b66804c032b79))
 
-3. Acceso a Internet en la maquina donde ese ejecutara el Script
+3. Acceso a Internet en la maquina donde se ejecuta docker
 
 3. Si la instalación se desarrolla sobre una máquina virtual, se recomienda la configuración del adaptador de red de la máquina virtual en modo Bridge o Puente [LINK](https://geek-university.com/oracle-virtualbox/configure-bridged-networks/)
 
