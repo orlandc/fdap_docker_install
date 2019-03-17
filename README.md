@@ -13,7 +13,7 @@ Este es el primer instalador para principiantes, de Docker Freeling 4.1 Django y
 
 ## Proceso de Instalación
 
-Se debe descargar la imagen del contenedor usando el docker-ce usando el siguiente comando en el Terminal:
+Se debe descargar la imagen del contenedor mediante el docker-ce usando el siguiente comando en el Terminal:
 
     sudo docker pull orlandc/freeling-django-rest-api
 
