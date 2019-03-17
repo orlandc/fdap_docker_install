@@ -4,34 +4,22 @@ Este es el primer instalador para principiantes, de Docker Freeling 4.1 Django y
 
 ## Requerimientos
 
-1. Sistema Operativo Linux Basdaos en Debian (Ubuntu Linux Mint, etc.) o RHEL (Centos, Fedora, REDHAT, etc.)
+1. Tener Docker CE instalado (Para sistemas Linux revisar el siguiente )[LINK](https://gist.github.com/subfuzion/90e8498a26c206ae393b66804c032b79)
 
-    Si no se cuenta este Sistema Operativo, se recomienda revisar el siguiente acerca de cómo crear máquinas virtuales con VirtualBox paso a paso [LINK](https://www.softzone.es/2014/10/30/como-crear-una-maquina-virtual-con-virtualbox-paso-paso/)
+3. Acceso a Internet en la maquina donde ese ejecutara el Script
 
-    Para desarrollar este proceso es necesario contar con el ISO que contiene el sistema operativo, se recomienda Ubuntu server, descárgalo en el siguiente enlace [LINK](https://www.ubuntu.com/download/server)
-
-    tambien recomendamos la version de Centos en el siguiente enlace [LINK](https://www.centos.org/download/)
-
-    No es necesario tener instalado Docker en nuestra maquina o en la máquina Virtual, ya que este instalador es capaz de instalarlo por si mismo, pero en caso de tener instalado Docker el instalador del Docker Freeling API Rest lo detecta y continua con el proceso de instalación de los demás productos.
-
-2. Acceso a Internet en la maquina donde ese ejecutara el Script
-
-3. Si la instalación se desarrolla sobre una máquina virtual, se recomienda la configuración del adaptador de red de la máquina virtual en modo Bridge o Puente, si tiene dudas de cómo desarrollar esta configuración por favor consultar el siguiente enlace [LINK](https://geek-university.com/oracle-virtualbox/configure-bridged-networks/)
+3. Si la instalación se desarrolla sobre una máquina virtual, se recomienda la configuración del adaptador de red de la máquina virtual en modo Bridge o Puente [LINK](https://geek-university.com/oracle-virtualbox/configure-bridged-networks/)
 
 
 ## Proceso de Instalación
 
-Para lograr ejecutar este Script de Instalación debe ejecutarse como usuario root o como impersonalización del usuario root mediante el uso del comando SUDO
+Se debe descargar la imagen del contenedor usando el docker-ce usando el siguiente comando en el Terminal:
 
-Existen dos métodos para desarrollar el procedimiento de instalación, el primero consiste en copiar y ejecutar el siguiente comando en la consola de tu sistema operativo linux:
+    sudo docker pull orlandc/freeling-django-rest-api
 
-    sudo curl -fsSL https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/fdap_install.sh | sudo sh
+Una vez terminado el proceso Procedemos a la Creación y ejecución del contenedor:
 
-el segundo método consiste en descargar y ejecutar el script:
-
-    sudo wget https://raw.githubusercontent.com/orlandc/fdap_docker_install/master/fdap_install.sh
-    sudo chmod +x fdap_install.sh
-    sudo ./fdap_install.sh
+     sudo docker run --name fdap --privileged -it -d -p 5080:80 -p 2222:22 -p 3500:3500 --restart=always orlandc/freeling-django-rest-api
 
 ## Ejemplos
 
