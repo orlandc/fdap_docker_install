@@ -86,7 +86,7 @@ Argumentos: `texto`: *texto de entrada*
 
 Salida: *lista de hashes* `palabra`: *palabra*, `lemas`: *lista de hashes* `categoria`: *etiqueta gramatical*, `lema`: *lema*
 
-    curl http://127.0.0.1:5080/ostagging/ -H "Content-Type:application/json" \
+    curl http://127.0.0.1:5080/postagging/ -H "Content-Type:application/json" \
     -d '{"texto": "{\"1\":\"El\", \"2\":\"presidente\", \"3\":\"de\", \"4\":\"el\", \"5\":\"Barcelona\"}" }' -X POST -s
 
     [{"texto ": [{"palabra": "El", "lemas": [{"categoria": "DA0MS0", "lema": "el"}]}, {"palabra": "presidente", "lemas": [{"categoria": "NCMS000", "lema":
